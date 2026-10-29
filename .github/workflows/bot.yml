@@ -1,1 +1,27 @@
-bot.yml
+name: hyperliquid-alert-bot
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # restart every 6 hours
+  workflow_dispatch:         # lets you start it manually
+
+concurrency:
+  group: hl-bot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python hl_alert_bot.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MAX_RUNTIME_SEC: "21480"   # 5h58m, then exit so the next run takes over
+          SEND_STARTUP: "0"
