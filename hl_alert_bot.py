@@ -167,8 +167,8 @@ def build_message(coin, price, ref, change, minutes, now):
         oi = None
 
     return (
-        f"{arrow} <b>#{tag}</b> {change:+.2f}%|{minutes:.1f}m "
-        f"{fmt_price(ref)}→ <b>{fmt_price(price)}</b>\n"
+        f"{arrow} <b>#{tag}</b> {change:+.2f}% {minutes:.1f}m "
+        f"{fmt_price(ref)}→<b>{fmt_price(price)}</b>\n"
         f"{bn_line}\n"
         f"FD: {fd} | OI: <b>{fmt_usd(oi)}</b>\n"
         f"Vol 5m: <b>{fmt_usd(vol5)}</b> | 24h: <b>{fmt_usd(vol24)}</b>\n"
