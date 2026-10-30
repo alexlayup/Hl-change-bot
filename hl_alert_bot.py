@@ -12,6 +12,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 import time
 from collections import defaultdict, deque
 
@@ -146,6 +147,7 @@ def get_binance_price(coin):
 
 def build_message(coin, price, ref, change, minutes, now):
     arrow = "🟢" if change > 0 else "🔴"
+    tag = re.sub(r"\W", "", coin)  # hashtag-safe (e.g. "xyz:TSLA" -> "xyzTSLA")
     ctx = get_ctx(coin)
     vol5, vol24 = get_volumes(coin, now, ctx)
 
@@ -165,8 +167,8 @@ def build_message(coin, price, ref, change, minutes, now):
         oi = None
 
     return (
-        f"{arrow} <b>{coin}</b> {change:+.2f}% in {minutes:.1f}m "
-        f"{fmt_price(ref)} → <b>{fmt_price(price)}</b>\n"
+        f"{arrow} <b>#{tag}</b> {change:+.2f}%|{minutes:.1f}m "
+        f"{fmt_price(ref)}→ <b>{fmt_price(price)}</b>\n"
         f"{bn_line}\n"
         f"FD: {fd} | OI: <b>{fmt_usd(oi)}</b>\n"
         f"Vol 5m: <b>{fmt_usd(vol5)}</b> | 24h: <b>{fmt_usd(vol24)}</b>\n"
@@ -196,8 +198,9 @@ def update(coin, price, now):
     if len(dq) < 2:
         return None
 
-    prices = [p for _, p in dq]
-    lo, hi = min(prices), max(prices)
+    # latest sample at the window low / high (reversed so ties pick the most recent)
+    lo_t, lo = min(reversed(dq), key=lambda x: x[1])
+    hi_t, hi = max(reversed(dq), key=lambda x: x[1])
     up = (price - lo) / lo * 100 if lo else 0       # rise from window low
     down = (price - hi) / hi * 100 if hi else 0     # drop from window high
     change = up if abs(up) >= abs(down) else down
@@ -208,8 +211,8 @@ def update(coin, price, now):
         return None
 
     last_alert[coin] = now
-    ref = lo if change > 0 else hi
-    return ref, change, (now - dq[0][0]) / 60
+    ref, ref_t = (lo, lo_t) if change > 0 else (hi, hi_t)
+    return ref, change, (now - ref_t) / 60   # time since the move started
 
 
 # ---------- WebSocket loop ----------
