@@ -22,7 +22,7 @@ HL_URL = "https://api.hyperliquid.xyz/info"
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-THRESHOLD_PCT = float(os.getenv("THRESHOLD_PCT", "1"))   # alert if move > 3%
+THRESHOLD_PCT = float(os.getenv("THRESHOLD_PCT", "2"))   # alert if move > 3%
 WINDOW_SEC = int(os.getenv("WINDOW_SEC", "300"))         # within 5 minutes
 POLL_SEC = int(os.getenv("POLL_SEC", "10"))              # check every 10s
 COOLDOWN_SEC = int(os.getenv("COOLDOWN_SEC", "300"))     # per-coin re-alert delay
