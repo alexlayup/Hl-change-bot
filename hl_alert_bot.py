@@ -158,7 +158,7 @@ def build_message(coin, price, ref, change, minutes, now):
         bn_line = "Binance: n/a"
 
     try:
-        fd = f"{float(ctx['funding']) * 100:+.4f}%/ h" if ctx else "n/a"
+        fd = f"{float(ctx['funding']) * 100:+.4f}%" if ctx else "n/a"
     except (KeyError, TypeError, ValueError):
         fd = "n/a"
     try:
